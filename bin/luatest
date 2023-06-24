@@ -1,0 +1,5 @@
+#!/usr/bin/env lua
+
+print("hello")
+
+-- vim: set filetype=lua:
