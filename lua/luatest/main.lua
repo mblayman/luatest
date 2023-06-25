@@ -9,7 +9,7 @@ local function build_parser()
     parser:add_help(true)
     parser:flag("-v --verbose", "Show verbose output")
     -- This should probably go away once things are more stable.
-    parser:flag("--debug", "Show debug output")
+    parser:flag("-d --debug", "Show debug output")
     return parser
 end
 

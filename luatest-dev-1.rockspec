@@ -11,6 +11,8 @@ description = {
     license = "MIT"
 }
 
-dependencies = {"lua >= 5.1, < 5.5", "argparse", "inspect", "penlight"}
+dependencies = {
+    "lua >= 5.1, < 5.5", "argparse", "inspect", "luassert", "penlight"
+}
 
 build = {type = "builtin", install = {bin = {"bin/luatest"}}}
