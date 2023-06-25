@@ -12,7 +12,8 @@ description = {
 }
 
 dependencies = {
-    "lua >= 5.1, < 5.5", "argparse", "inspect", "luassert", "penlight"
+    "lua >= 5.1, < 5.5", "ansicolors", "argparse", "inspect", "luassert",
+    "penlight"
 }
 
 build = {type = "builtin", install = {bin = {"bin/luatest"}}}

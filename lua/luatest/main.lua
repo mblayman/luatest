@@ -2,6 +2,7 @@ local argparse = require "argparse"
 local inspect = require "inspect"
 
 local collection = require "luatest.collection"
+local executor = require "luatest.executor"
 
 -- Build the interface parser.
 local function build_parser()
@@ -20,7 +21,8 @@ local function main(args)
 
     if config.debug then print(inspect(config)) end
 
-    collection.collect(config)
+    local test_modules = collection.collect(config)
+    executor.execute(test_modules)
 end
 
 return {main = main}
