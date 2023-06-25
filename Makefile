@@ -1,5 +1,6 @@
 .PHONY: deps
 
+lr = luarocks --tree .luarocks
+
 deps:
-	luarocks --tree .luarocks install argparse
-	luarocks --tree .luarocks install inspect
+	$(lr) make
