@@ -1,5 +1,6 @@
 #!/usr/bin/env lua
 
-print("hello")
+local main = require "luatest.main"
+main.main(arg)
 
 -- vim: set filetype=lua:
