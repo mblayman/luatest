@@ -1,20 +1,20 @@
-local ansicolors = require "ansicolors"
 local dir = require "pl.dir"
 local path = require "pl.path"
 local stringx = require "pl.stringx"
 local inspect = require "inspect"
 
 -- Process module and store it with the collected modules.
-local function process_module(relpath, test_module, test_modules)
+local function process_module(relpath, test_module, test_modules, reporter)
     local tests_count = 0
 
     if test_module == true then
-        print(relpath .. " is not a module. Did you remember to return tests?")
+        reporter:warn(relpath ..
+                          " is not a module. Did you remember to return tests?")
     else
         for _ in pairs(test_module) do tests_count = tests_count + 1 end
 
         if tests_count == 0 then
-            print("No tests found in " .. relpath)
+            reporter:warn("No tests found in " .. relpath)
         else
             test_modules[relpath] = {
                 module = test_module,
@@ -27,15 +27,11 @@ local function process_module(relpath, test_module, test_modules)
 end
 
 -- Collect all available tests.
-local function collect(config)
+local function collect(config, reporter)
     local cwd = path.currentdir()
     local tests_dir = path.join(cwd, "tests")
 
-    if config.verbose then
-        -- TODO: use a reporter instead of printing.
-        -- In fact, the reporter should probably care about verbose, not this collect function.
-        print("Searching " .. tests_dir)
-    end
+    reporter:start_collection(tests_dir)
 
     -- This table will hold all test modules that will be used
     -- during the execution phase.
@@ -56,7 +52,7 @@ local function collect(config)
 
                 -- Process the module.
                 local tests_count = process_module(relpath, test_module,
-                                                   test_modules)
+                                                   test_modules, reporter)
                 total_tests = total_tests + tests_count
             end
         end
@@ -65,15 +61,11 @@ local function collect(config)
     test_modules.meta = {total_tests = total_tests}
 
     if config.debug then
-        print('Test Modules')
-        print(inspect(test_modules))
+        print('\nTest Modules')
+        print(inspect(test_modules) .. "\n")
     end
 
-    local tests_label = " tests\n"
-    if test_modules.meta.total_tests == 1 then tests_label = " test\n" end
-    print(ansicolors("%{bright}Collected " .. test_modules.meta.total_tests ..
-                         tests_label))
-
+    reporter:finish_collection(total_tests)
     return test_modules
 end
 

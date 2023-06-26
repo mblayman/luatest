@@ -3,6 +3,7 @@ local inspect = require "inspect"
 
 local collection = require "luatest.collection"
 local executor = require "luatest.executor"
+local Reporter = require "luatest.reporter"
 
 -- Build the interface parser.
 local function build_parser()
@@ -19,10 +20,16 @@ local function main(args)
     local parser = build_parser()
     local config = parser:parse(args)
 
-    if config.debug then print(inspect(config)) end
+    local reporter = Reporter(config)
+    reporter:start()
 
-    local test_modules = collection.collect(config)
-    executor.execute(test_modules)
+    if config.debug then print("Configuration\n" .. inspect(config)) end
+
+    local test_modules = collection.collect(config, reporter)
+    executor.execute(test_modules, reporter)
+
+    reporter:finish()
+    return reporter:summarize()
 end
 
 return {main = main}
