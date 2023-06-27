@@ -12,8 +12,14 @@ description = {
 }
 
 dependencies = {
-    "lua >= 5.1, < 5.5", "ansicolors", "argparse", "inspect", "luassert",
-    "penlight"
+    "lua >= 5.1, < 5.5", -- Only testing against 5.4
+    "ansicolors", -- For colors in the output
+    "argparse", -- For parsing command line arguments
+    "inspect", -- Debugging only
+    "luassert", -- The assertions that tests should use
+    "luacov", -- For collection test coverage metrics
+    "luacov-reporter-lcov", -- Report coverage data in lcov format
+    "penlight" -- Utilities used throughout the library
 }
 
 build = {type = "builtin", install = {bin = {"bin/luatest"}}}
