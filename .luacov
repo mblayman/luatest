@@ -1,0 +1,8 @@
+runreport = true
+reporter = "lcov"
+reportfile = "lcov.info"
+deletestats = true
+includeuntestedfiles = true
+modules = {
+    ["luatest.*"] = "lua"
+}
