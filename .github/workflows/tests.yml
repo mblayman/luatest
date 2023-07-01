@@ -1,0 +1,31 @@
+name: test
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@master
+
+    - uses: leafo/gh-actions-lua@v10
+      with:
+        luaVersion: "5.4"
+
+    - uses: leafo/gh-actions-luarocks@v4.3.0
+
+    - name: Cache Lua packages
+      uses: actions/cache@v3
+      with:
+        path: ${{ github.workspace }}/.luarocks
+        key: lua-${{ hashFiles('luatest-dev-1.rockspec') }}
+
+    - name: set path
+      run: echo "${{ github.workspace }}/.luarocks/bin" >> $GITHUB_PATH
+
+    - name: build
+      run: make build
+
+    - name: test
+      run: make coverage
