@@ -2,7 +2,7 @@
 
 lr = luarocks --tree .luarocks
 
-deps:
+build:
 	$(lr) make
 
 coverage:
