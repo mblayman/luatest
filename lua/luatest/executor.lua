@@ -15,7 +15,7 @@ local function execute(test_modules, reporter)
         end
     end
 
-    print()
+    reporter:finish_execution()
 end
 
 return {execute = execute}

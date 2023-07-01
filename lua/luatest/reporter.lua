@@ -94,6 +94,9 @@ function Reporter.finish_test(self, relpath, test_name, status,
     end
 end
 
+-- Report at the end of the execution phase.
+function Reporter.finish_execution(_) print() end
+
 -- Show failure details.
 function Reporter._show_failure_details(self)
     for relpath, test_names in tablex.sort(self._failures) do
