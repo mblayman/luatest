@@ -5,9 +5,16 @@ local tablex = require "pl.tablex"
 local Reporter = {}
 Reporter.__index = Reporter
 
-local function _init(_, config)
+local function _init(_, config, file)
     local self = setmetatable({}, Reporter)
     self._config = config
+
+    -- Default to stdout, but use a provided file handle for testing purposes.
+    if file then
+        self._file = file
+    else
+        self._file = io.stdout
+    end
 
     -- Times to track total execution time
     self._start = nil
@@ -27,8 +34,21 @@ function Reporter.start(self) self._start = os.time() end
 -- Finish recording execution time.
 function Reporter.finish(self) self._finish = os.time() end
 
+-- Print to the file.
+-- This convenience method is used to behave like print on the reporter's file handle.
+function Reporter._print(self, message)
+    if message == nil then message = "" end
+    self._file:write(message .. "\n")
+end
+
+-- Write to the file.
+-- This convenience method is used to behave like write on the reporter's file handle.
+function Reporter._write(self, message) self._file:write(message) end
+
 -- Show a warning message.
-function Reporter.warn(_, message) print(ansicolors("%{yellow}" .. message)) end
+function Reporter.warn(self, message)
+    self:_print(ansicolors("%{yellow}" .. message))
+end
 
 --
 -- Collection hooks
@@ -36,14 +56,14 @@ function Reporter.warn(_, message) print(ansicolors("%{yellow}" .. message)) end
 
 -- Report at the start of collection.
 function Reporter.start_collection(self, tests_dir)
-    if self._config.verbose then print("Searching " .. tests_dir) end
+    if self._config.verbose then self:_print("Searching " .. tests_dir) end
 end
 
 -- Report at the finish of collection.
-function Reporter.finish_collection(_, total_tests)
+function Reporter.finish_collection(self, total_tests)
     local tests_label = " tests\n"
     if total_tests == 1 then tests_label = " test\n" end
-    print(ansicolors("%{bright}Collected " .. total_tests .. tests_label))
+    self:_print(ansicolors("%{bright}Collected " .. total_tests .. tests_label))
 end
 
 --
@@ -54,18 +74,18 @@ end
 function Reporter.start_module(self, relpath)
     -- In verbose mode, the relpath is included with every test,
     -- so this is not needed in that mode.
-    if not self._config.verbose then io.write(relpath .. " ") end
+    if not self._config.verbose then self:_write(relpath .. " ") end
 end
 
 -- Report at the finish of a module's test execution.
 function Reporter.finish_module(self, _)
-    if not self._config.verbose then io.write("\n") end
+    if not self._config.verbose then self:_write("\n") end
 end
 
 -- Report at the start of a test's execution.
 function Reporter.start_test(self, relpath, test_name)
     if self._config.verbose then
-        io.write(relpath .. "::" .. test_name .. " ")
+        self:_write(relpath .. "::" .. test_name .. " ")
     end
 end
 
@@ -74,15 +94,15 @@ function Reporter.finish_test(self, relpath, test_name, status,
                               assertion_details)
     if self._config.verbose then
         if status then
-            io.write(ansicolors("%{green}PASSED\n"))
+            self:_write(ansicolors("%{green}PASSED\n"))
         else
-            io.write(ansicolors("%{red}FAILED\n"))
+            self:_write(ansicolors("%{red}FAILED\n"))
         end
     else
         if status then
-            io.write(ansicolors("%{green}."))
+            self:_write(ansicolors("%{green}."))
         else
-            io.write(ansicolors("%{red}F"))
+            self:_write(ansicolors("%{red}F"))
         end
     end
 
@@ -95,14 +115,15 @@ function Reporter.finish_test(self, relpath, test_name, status,
 end
 
 -- Report at the end of the execution phase.
-function Reporter.finish_execution(_) print() end
+function Reporter.finish_execution(self) self:_print() end
 
 -- Show failure details.
 function Reporter._show_failure_details(self)
     for relpath, test_names in tablex.sort(self._failures) do
         for test_name, assertion_details in tablex.sort(test_names) do
-            print(ansicolors("%{bright red}" .. relpath .. "::" .. test_name ..
-                                 "%{reset}\n\n" .. assertion_details .. "\n"))
+            self:_print(ansicolors("%{bright red}" .. relpath .. "::" ..
+                                       test_name .. "%{reset}\n\n" ..
+                                       assertion_details .. "\n"))
         end
     end
 end
@@ -117,13 +138,14 @@ function Reporter.summarize(self)
     -- Summary line
     local delta_seconds = os.difftime(self._finish, self._start)
     if failures_count > 0 then
-        print(ansicolors("%{bright red}" .. failures_count ..
-                             " failed%{reset}, %{green}" .. self._passed_count ..
-                             " passed %{red}in " .. delta_seconds .. "s"))
+        self:_print(ansicolors("%{bright red}" .. failures_count ..
+                                   " failed%{reset}, %{green}" ..
+                                   self._passed_count .. " passed %{red}in " ..
+                                   delta_seconds .. "s"))
     else
-        print(ansicolors("%{bright green}" .. self._passed_count ..
-                             " passed %{reset}%{green}in " .. delta_seconds ..
-                             "s"))
+        self:_print(ansicolors("%{bright green}" .. self._passed_count ..
+                                   " passed %{reset}%{green}in " ..
+                                   delta_seconds .. "s"))
     end
 
     -- The status code to report at process exit
