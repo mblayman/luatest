@@ -1,0 +1,1 @@
+-- This file does not return a table on purpose to check a collection error path.

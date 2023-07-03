@@ -12,3 +12,4 @@ coverage:
 html:
 	rm -rf html
 	genhtml -o html lcov.info
+	open html/index.html

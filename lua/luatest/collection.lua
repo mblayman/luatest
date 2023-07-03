@@ -61,12 +61,14 @@ local function collect(config, reporter)
     test_modules.meta = {total_tests = total_tests}
 
     if config.debug then
+        -- luacov: disable
         print('\nTest Modules')
         print(inspect(test_modules) .. "\n")
+        -- luacov: enable
     end
 
     reporter:finish_collection(total_tests)
     return test_modules
 end
 
-return {collect = collect}
+return {collect = collect, process_module = process_module}
