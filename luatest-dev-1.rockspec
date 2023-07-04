@@ -16,6 +16,7 @@ dependencies = {
     "ansicolors", -- For colors in the output
     "argparse", -- For parsing command line arguments
     "inspect", -- Debugging only
+    "lua-toml", -- For configuration file support
     "luassert", -- The assertions that tests should use
     "luacov", -- For collection test coverage metrics
     "luacov-reporter-lcov", -- Report coverage data in lcov format

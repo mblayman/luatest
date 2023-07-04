@@ -2,6 +2,7 @@ local argparse = require "argparse"
 local inspect = require "inspect"
 
 local collection = require "luatest.collection"
+local configuration = require "luatest.configuration"
 local coverage = require "luatest.coverage"
 local executor = require "luatest.executor"
 local Reporter = require "luatest.reporter"
@@ -27,13 +28,13 @@ end
 local function main(args)
     local parser = build_parser()
     local config = parser:parse(args)
+    configuration.load_config_file(config)
+    if config.debug then print("Configuration\n" .. inspect(config)) end
 
     if config.cov then coverage.initialize_coverage(config) end
 
     local reporter = Reporter(config)
     reporter:start()
-
-    if config.debug then print("Configuration\n" .. inspect(config)) end
 
     local test_modules = collection.collect(config, reporter)
     executor.execute(test_modules, reporter)

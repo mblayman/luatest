@@ -6,16 +6,26 @@ local collection = require "luatest.collection"
 local tests = {}
 
 -- Collection provides a set of test modules and associated meta data.
--- TODO: This can't be done until the tests directory is a config option. See #8
-function tests.test_collects_test_modules() end
+function tests.test_collects_test_modules()
+    local test_something = require "tests.demo.test_something"
+    local config = {tests_dir = "tests/demo"}
+    local reporter = {}
+    spy.on(reporter, "start_collection")
+    spy.on(reporter, "finish_collection")
 
--- Collection is done in the user's configured directory containing tests.
--- TODO: This can't be done until the tests directory is a config option. See #8
-function tests.test_configured_tests_directory() assert.is_true(true) end
+    -- TODO: use the upcoming test file pattern rename so the demo tests
+    -- don't appear as part of the whole suite.
+    -- TODO: include another test file to show that total calculation is working.
+    local test_modules = collection.collect(config, reporter)
 
--- Collection calculates the total number of tests.
--- TODO: This can't be done until the tests directory is a config option. See #8
-function tests.test_total_tests() assert.is_true(true) end
+    assert.is_same({
+        meta = {total_tests = 1},
+        ["tests/demo/test_something.lua"] = {
+            module = {test_foo = test_something.test_foo},
+            tests_count = 1
+        }
+    }, test_modules)
+end
 
 -- A module that doesn't look like a table of functions triggers a warning.
 function tests.test_non_module()

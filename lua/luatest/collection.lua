@@ -29,7 +29,7 @@ end
 -- Collect all available tests.
 local function collect(config, reporter)
     local cwd = path.currentdir()
-    local tests_dir = path.join(cwd, "tests")
+    local tests_dir = path.join(cwd, config.tests_dir or "tests")
 
     reporter:start_collection(tests_dir)
 

@@ -28,6 +28,34 @@ tests/test_reporter.lua ................
 24 passed in 0.0s
 ```
 
-# Features
+## Features
 
 1. Discover, collect, and execute test code.
+2. Measure code coverage via luacov.
+
+## Configuration
+
+luatest checks for configuration from two sources:
+
+1. Command line flags
+2. A configuration file named `luaproject.toml`
+
+### Command line flags
+
+See `luatest -h` for the full list of all available flags.
+
+`--cov` - Use this flag to measure code coverage for a given directory.
+
+### Configuration file
+
+The `luaproject.toml` example is shown below with inline comments
+to explain the supported configuration.
+Each configuration value shows the default configuration.
+
+```toml
+# All configuration options are under the tool.luatest table.
+[tool.luatest]
+
+# The directory to search when looking for tests.
+tests_dir = "tests"
+```
