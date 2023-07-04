@@ -1,5 +1,7 @@
 # luatest
 
+[![codecov](https://codecov.io/gh/mblayman/luatest/branch/main/graph/badge.svg?token=DBYXXLQXKB)](https://codecov.io/gh/mblayman/luatest)
+
 A Lua test runner
 
 Lua has a handful of test runners like Busted.
