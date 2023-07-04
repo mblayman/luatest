@@ -18,6 +18,14 @@ Assertion functionality is delegated to `luassert`.
 
 ```bash
 $ luatest
+Collected 24 tests
+
+tests/test_collection.lua .....
+tests/test_coverage.lua .
+tests/test_executor.lua ..
+tests/test_reporter.lua ................
+
+24 passed in 0.0s
 ```
 
 # Features
