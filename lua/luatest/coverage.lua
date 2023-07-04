@@ -4,10 +4,8 @@ local runner = require "luacov.runner"
 local dir = require "pl.dir"
 local path = require "pl.path"
 
-local function initialize_coverage(config)
-    local configuration = {}
-    for setting, value in pairs(defaults) do configuration[setting] = value end
-
+-- Set all the files that should be measured for coverage.
+local function set_included_files(config, configuration)
     -- Include all source files in luacov format
     -- (i.e. with forward slash and no extension)
     local cwd = path.currentdir()
@@ -20,6 +18,14 @@ local function initialize_coverage(config)
             table.insert(configuration.include, modpath)
         end
     end
+end
+
+local function initialize_coverage(config)
+    -- luacov: disable
+    local configuration = {}
+    for setting, value in pairs(defaults) do configuration[setting] = value end
+
+    set_included_files(config, configuration)
 
     -- Override defaults.
     configuration.runreport = true
@@ -35,6 +41,7 @@ local function initialize_coverage(config)
     end
 
     runner.init(configuration)
+    -- luacov: enable
 end
 
 -- Finalize coverage measurement directly because the os.exit hook isn't running.
@@ -42,5 +49,6 @@ local function finalize_coverage() runner.shutdown() end
 
 return {
     initialize_coverage = initialize_coverage,
-    finalize_coverage = finalize_coverage
+    finalize_coverage = finalize_coverage,
+    set_included_files = set_included_files
 }
