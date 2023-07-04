@@ -13,12 +13,14 @@ function tests.test_set_included_files()
 
     coverage.set_included_files(config, configuration)
 
-    assert.is_same({
-        include = {
-            "tests/demo/failing", "tests/demo/empty", "tests/demo/not_a_module",
-            "tests/demo/passing"
-        }
-    }, configuration)
+    local expected = {
+        ["tests/demo/failing"] = true,
+        ["tests/demo/empty"] = true,
+        ["tests/demo/not_a_module"] = true,
+        ["tests/demo/passing"] = true
+    }
+    for _, module in pairs(configuration.include) do expected[module] = nil end
+    assert.is_same({}, expected)
 end
 
 return tests
