@@ -58,4 +58,8 @@ Each configuration value shows the default configuration.
 
 # The directory to search when looking for tests.
 tests_dir = "tests"
+
+# The pattern that will be used to discover test modules.
+# This default pattern will match a file that looks like "test_<something>.lua".
+test_file_pattern = "test_.+%.lua"
 ```

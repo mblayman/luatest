@@ -1,2 +1,3 @@
 [tool.luatest]
 tests_dir = "tests"
+test_file_pattern = "test_.+%.lua"

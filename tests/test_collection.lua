@@ -7,21 +7,26 @@ local tests = {}
 
 -- Collection provides a set of test modules and associated meta data.
 function tests.test_collects_test_modules()
-    local test_something = require "tests.demo.test_something"
-    local config = {tests_dir = "tests/demo"}
+    local something_test = require "tests.demo.something_test"
+    local other_test = require "tests.demo.other_test"
+    local config = {
+        tests_dir = "tests/demo",
+        test_file_pattern = ".+_test%.lua"
+    }
     local reporter = {}
     spy.on(reporter, "start_collection")
     spy.on(reporter, "finish_collection")
 
-    -- TODO: use the upcoming test file pattern rename so the demo tests
-    -- don't appear as part of the whole suite.
-    -- TODO: include another test file to show that total calculation is working.
     local test_modules = collection.collect(config, reporter)
 
     assert.is_same({
-        meta = {total_tests = 1},
-        ["tests/demo/test_something.lua"] = {
-            module = {test_foo = test_something.test_foo},
+        meta = {total_tests = 2},
+        ["tests/demo/something_test.lua"] = {
+            module = {test_foo = something_test.test_foo},
+            tests_count = 1
+        },
+        ["tests/demo/other_test.lua"] = {
+            module = {test_foo = other_test.test_foo},
             tests_count = 1
         }
     }, test_modules)

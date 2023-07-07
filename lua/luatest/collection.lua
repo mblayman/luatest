@@ -29,7 +29,7 @@ end
 -- Collect all available tests.
 local function collect(config, reporter)
     local cwd = path.currentdir()
-    local tests_dir = path.join(cwd, config.tests_dir or "tests")
+    local tests_dir = path.join(cwd, config.tests_dir)
 
     reporter:start_collection(tests_dir)
 
@@ -40,8 +40,7 @@ local function collect(config, reporter)
 
     for root, _, files in dir.walk(tests_dir) do
         for file_ in files:iter() do
-            if stringx.startswith(file_, "test_") and
-                stringx.endswith(file_, ".lua") then
+            if string.match(file_, config.test_file_pattern) then
                 local filepath = path.join(root, file_)
                 local relpath = path.relpath(filepath, cwd)
 
