@@ -13,6 +13,7 @@ local function build_parser()
     parser:add_help(true)
 
     parser:group("General", parser:flag("-v --verbose", "Show verbose output"),
+                 parser:flag("-q --quiet", "Show quiet output"),
     -- The debug flag is for developing luatest
     -- and is not meant to be a user-level feature.
                  parser:flag("-d --debug", "Show debug output"):hidden(true))

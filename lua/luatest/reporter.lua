@@ -61,9 +61,12 @@ end
 
 -- Report at the finish of collection.
 function Reporter.finish_collection(self, total_tests)
-    local tests_label = " tests\n"
-    if total_tests == 1 then tests_label = " test\n" end
-    self:_print(ansicolors("%{bright}Collected " .. total_tests .. tests_label))
+    if not self._config.quiet then
+        local tests_label = " tests\n"
+        if total_tests == 1 then tests_label = " test\n" end
+        self:_print(ansicolors("%{bright}Collected " .. total_tests ..
+                                   tests_label))
+    end
 end
 
 --
@@ -74,12 +77,16 @@ end
 function Reporter.start_module(self, relpath)
     -- In verbose mode, the relpath is included with every test,
     -- so this is not needed in that mode.
-    if not self._config.verbose then self:_write(relpath .. " ") end
+    if not self._config.verbose and not self._config.quiet then
+        self:_write(relpath .. " ")
+    end
 end
 
 -- Report at the finish of a module's test execution.
 function Reporter.finish_module(self, _)
-    if not self._config.verbose then self:_write("\n") end
+    if not self._config.verbose and not self._config.quiet then
+        self:_write("\n")
+    end
 end
 
 -- Report at the start of a test's execution.
