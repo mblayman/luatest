@@ -11,19 +11,19 @@ local function get_content(file)
 end
 
 -- Reporter sets the start state.
-function tests.test_start()
+function tests.test_start_timing()
     local reporter = Reporter()
 
-    reporter:start()
+    reporter:start_timing()
 
     assert.is_not_nil(reporter._start)
 end
 
 -- Reporter sets the finish state.
-function tests.test_finish()
+function tests.test_finish_timing()
     local reporter = Reporter()
 
-    reporter:finish()
+    reporter:finish_timing()
 
     assert.is_not_nil(reporter._finish)
 end
@@ -174,8 +174,8 @@ function tests.test_summarize_no_failures()
     local file = io.tmpfile()
     -- local file = io.open('test-out.txt', 'w')
     local reporter = Reporter(config, file)
-    reporter:start()
-    reporter:finish()
+    reporter:start_timing()
+    reporter:finish_timing()
 
     local final_status = reporter:summarize()
 
@@ -192,8 +192,8 @@ function tests.test_summarize_failure()
     -- local file = io.open('test-out.txt', 'w')
     local reporter = Reporter(config, file)
     reporter._failures = {["tests/test_something.lua"] = {test_foo = "details"}}
-    reporter:start()
-    reporter:finish()
+    reporter:start_timing()
+    reporter:finish_timing()
 
     local final_status = reporter:summarize()
 

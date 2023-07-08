@@ -35,12 +35,12 @@ local function main(args)
     if config.cov then coverage.initialize_coverage(config) end
 
     local reporter = Reporter(config)
-    reporter:start()
+    reporter:start_timing()
 
     local test_modules = collection.collect(config, reporter)
     executor.execute(test_modules, reporter)
 
-    reporter:finish()
+    reporter:finish_timing()
     local status = reporter:summarize()
 
     if config.cov then coverage.finalize_coverage() end

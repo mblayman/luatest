@@ -29,10 +29,10 @@ end
 setmetatable(Reporter, {__call = _init})
 
 -- Start recording execution time.
-function Reporter.start(self) self._start = os.time() end
+function Reporter.start_timing(self) self._start = os.time() end
 
 -- Finish recording execution time.
-function Reporter.finish(self) self._finish = os.time() end
+function Reporter.finish_timing(self) self._finish = os.time() end
 
 -- Print to the file.
 -- This convenience method is used to behave like print on the reporter's file handle.
