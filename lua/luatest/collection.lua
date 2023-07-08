@@ -61,8 +61,8 @@ local function collect(config, reporter)
 
     if config.debug then
         -- luacov: disable
-        print('\nTest Modules')
-        print(inspect(test_modules) .. "\n")
+        reporter:print('\nTest Modules')
+        reporter:print(inspect(test_modules) .. "\n")
         -- luacov: enable
     end
 

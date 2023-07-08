@@ -34,7 +34,7 @@ function tests.test_print_empty()
     local file = io.tmpfile()
     local reporter = Reporter(config, file)
 
-    reporter:_print()
+    reporter:print()
 
     assert.is_equal("\n", get_content(file))
 end
@@ -168,6 +168,36 @@ function tests.test_finish_test_failing_verbose()
     assert.is_equal("\x1B[0m\x1B[31mFAILED\n\x1B[0m", get_content(file))
 end
 
+-- A failure stores any captured stdout content.
+function tests.test_finish_test_stores_stdout()
+    local config = {}
+    local file = io.tmpfile()
+    local reporter = Reporter(config, file)
+    reporter._read_stdout = function() return "stdout content" end
+
+    reporter:finish_test("tests/test_something.lua", "test_foo", false,
+                         "details")
+
+    assert.is_same({
+        ["tests/test_something.lua"] = {test_foo = "stdout content"}
+    }, reporter._captured_stdout)
+end
+
+-- A failure stores any captured stderr content.
+function tests.test_finish_test_stores_stderr()
+    local config = {}
+    local file = io.tmpfile()
+    local reporter = Reporter(config, file)
+    reporter._read_stderr = function() return "stderr content" end
+
+    reporter:finish_test("tests/test_something.lua", "test_foo", false,
+                         "details")
+
+    assert.is_same({
+        ["tests/test_something.lua"] = {test_foo = "stderr content"}
+    }, reporter._captured_stderr)
+end
+
 -- Summarize reports with no failures.
 function tests.test_summarize_no_failures()
     local config = {}
@@ -189,20 +219,41 @@ end
 function tests.test_summarize_failure()
     local config = {}
     local file = io.tmpfile()
-    -- local file = io.open('test-out.txt', 'w')
     local reporter = Reporter(config, file)
     reporter._failures = {["tests/test_something.lua"] = {test_foo = "details"}}
+    reporter._captured_stdout = {
+        ["tests/test_something.lua"] = {test_foo = "stdout content"}
+    }
+    reporter._captured_stderr = {
+        ["tests/test_something.lua"] = {test_foo = "stderr content"}
+    }
     reporter:start_timing()
     reporter:finish_timing()
 
     local final_status = reporter:summarize()
 
-    local failure_details =
-        "\x1B[0m\x1B[1m\x1B[31mtests/test_something.lua::test_foo\x1B[0m\n\ndetails\n\x1B[0m\n"
+    local test_file =
+        "\x1B[0m\x1B[1m\x1B[31mtests/test_something.lua::test_foo\x1B[0m\n\x1B[0m\n"
+    local stdout = "> stdout:\nstdout content\n\n"
+    local stderr = "> stderr:\nstderr content\n\n"
+    local failure_details = "details\n\n"
     local summary =
         "\x1B[0m\x1B[1m\x1B[31m1 failed\x1B[0m, \x1B[32m0 passed \x1B[31min 0.0s\x1B[0m\n"
-    assert.is_equal(failure_details .. summary, get_content(file))
+    assert.is_equal(test_file .. stdout .. stderr .. failure_details .. summary,
+                    get_content(file))
     assert.is_equal(1, final_status)
+end
+
+-- Print output is captured to stdout.
+-- Because the global replacement is fiddly, this test is measuring the *currently*
+-- running reporter instead of an explicit reporter under test.
+function tests.test_print_to_stdout_file()
+    print('should not appear')
+    -- The test does not bother to assert because the suite will fail
+    -- if the --no-capture flag is used.
+    -- A better version of this test would try to play nicely with the current
+    -- stdout and stderr, set up capturing with the reporter under test,
+    -- then restore at the end.
 end
 
 return tests

@@ -33,6 +33,15 @@ tests/test_reporter.lua ................
 1. Discover, collect, and execute test code.
 2. Measure code coverage via luacov.
 
+### stdout/stderr capturing
+
+By default, luatest will attempt to capture any usage of stdout and stderr
+via `io.stdout`, `io.stderr`, or `print`.
+Anything captured during test exeuction will be stored upon failures
+and displayed with assertion detail diagnostics.
+
+To disable this behavior, use the `--no-capture` flag.
+
 ## Configuration
 
 luatest checks for configuration from two sources:
@@ -44,7 +53,8 @@ luatest checks for configuration from two sources:
 
 See `luatest -h` for the full list of all available flags.
 
-`--cov` - Use this flag to measure code coverage for a given directory.
+* `--cov` - Use this flag to measure code coverage for a given directory.
+* `--no-capture` - Use this flag to disable stdout/stderr capturing.
 
 ### Configuration file
 
