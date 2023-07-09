@@ -108,6 +108,17 @@ function Reporter.warn(self, message)
     self:print(ansicolors("%{yellow}" .. message))
 end
 
+-- Show an error message.
+function Reporter.error(self, message)
+    self:print(ansicolors("%{red}" .. message))
+end
+
+-- Show a fatal error message and exit.
+function Reporter.fatal(self, message)
+    self:error(message)
+    os.exit(1)
+end
+
 --
 -- Collection hooks
 --
