@@ -10,6 +10,7 @@ function tests.test_collects_test_modules()
     local something_test = require "tests.demo.something_test"
     local other_test = require "tests.demo.other_test"
     local config = {
+        tests = {},
         tests_dir = "tests/demo",
         test_file_pattern = ".+_test%.lua"
     }

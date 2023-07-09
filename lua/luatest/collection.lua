@@ -26,19 +26,11 @@ local function process_module(relpath, test_module, test_modules, reporter)
     return tests_count
 end
 
--- Collect all available tests.
-local function collect(config, reporter)
-    local cwd = path.currentdir()
-    local tests_dir = path.join(cwd, config.tests_dir)
-
-    reporter:start_collection(tests_dir)
-
-    -- This table will hold all test modules that will be used
-    -- during the execution phase.
-    local test_modules = {meta = {total_tests = 0}}
+-- Collect a directory.
+-- This function assumes that the directory is within (or is) the tests directory.
+local function collect_directory(config, reporter, directory, cwd, test_modules)
     local total_tests = 0
-
-    for root, _, files in dir.walk(tests_dir) do
+    for root, _, files in dir.walk(directory) do
         for file_ in files:iter() do
             if string.match(file_, config.test_file_pattern) then
                 local filepath = path.join(root, file_)
@@ -55,6 +47,33 @@ local function collect(config, reporter)
                 total_tests = total_tests + tests_count
             end
         end
+    end
+    return total_tests
+end
+
+-- Collect all available tests.
+local function collect(config, reporter)
+    local cwd = path.currentdir()
+    local tests_dir = path.join(cwd, config.tests_dir)
+
+    reporter:start_collection(tests_dir)
+
+    -- 1. no tests, run all
+    -- 2. validate paths, deduplicate, group by directories and files
+    -- 3. collect directories, reject directories with test filter
+    -- 4. collect whole files
+    -- 5. collect individual tests (don't reload module repeatedly)
+
+    -- This table will hold all test modules that will be used
+    -- during the execution phase.
+    local test_modules = {meta = {total_tests = 0}}
+    local total_tests = 0
+
+    if #config.tests == 0 then
+        total_tests = collect_directory(config, reporter, tests_dir, cwd,
+                                        test_modules)
+    else
+        print('pos args')
     end
 
     test_modules.meta = {total_tests = total_tests}

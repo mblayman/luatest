@@ -12,6 +12,8 @@ local function build_parser()
     local parser = argparse("luatest", "A Lua test runner")
     parser:add_help(true)
 
+    parser:argument("tests"):args("*")
+
     parser:group("General",
     -- These flags control the amount of output information.
                  parser:flag("-v --verbose", "Show verbose output"),
