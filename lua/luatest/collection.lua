@@ -3,27 +3,64 @@ local path = require "pl.path"
 local stringx = require "pl.stringx"
 local inspect = require "inspect"
 
+-- Report errors.
+local function report_errors(errors, reporter)
+    if #errors ~= 0 then
+        for _, error in ipairs(errors) do reporter:error(error) end
+        reporter:fatal("Collection failed.")
+    end
+end
+
 -- Process module and store it with the collected modules.
-local function process_module(relpath, test_module, test_modules, reporter)
-    local tests_count = 0
+local function process_module(relpath, test_module, test_meta, test_modules,
+                              reporter)
+    local tests = {}
 
     if test_module == true then
         reporter:warn(relpath ..
                           " is not a module. Did you remember to return tests?")
     else
-        for _ in pairs(test_module) do tests_count = tests_count + 1 end
+        if test_meta.collect_all then
+            for test, _ in pairs(test_module) do
+                table.insert(tests, test)
+            end
+        else
+            local errors = {}
+            for test, _ in pairs(test_meta.tests) do
+                if test_module[test] then
+                    table.insert(tests, test)
+                else
+                    table.insert(errors, relpath ..
+                                     " has no test function named " .. test)
+                end
+            end
 
-        if tests_count == 0 then
+            report_errors(errors, reporter)
+        end
+
+        if #tests == 0 then
             reporter:warn("No tests found in " .. relpath)
         else
-            test_modules[relpath] = {
-                module = test_module,
-                tests_count = tests_count
-            }
+            test_modules[relpath] = {module = test_module, tests = tests}
         end
     end
 
-    return tests_count
+    return #tests
+end
+
+-- Collect a test module file.
+-- This function assumes that the file is within the tests directory.
+local function collect_file(reporter, test_path, test_meta, cwd, test_modules)
+    local relpath = path.relpath(test_path, cwd)
+
+    -- Load module.
+    local modpath, _ = path.splitext(relpath)
+    modpath = stringx.replace(modpath, "/", ".")
+    local test_module = require(modpath)
+
+    -- Process the module.
+    return process_module(relpath, test_module, test_meta, test_modules,
+                          reporter)
 end
 
 -- Collect a directory.
@@ -34,29 +71,14 @@ local function collect_directory(config, reporter, directory, cwd, test_modules)
         for file_ in files:iter() do
             if string.match(file_, config.test_file_pattern) then
                 local filepath = path.join(root, file_)
-                local relpath = path.relpath(filepath, cwd)
-
-                -- Load module.
-                local modpath, _ = path.splitext(relpath)
-                modpath = stringx.replace(modpath, "/", ".")
-                local test_module = require(modpath)
-
-                -- Process the module.
-                local tests_count = process_module(relpath, test_module,
-                                                   test_modules, reporter)
+                local tests_count = collect_file(reporter, filepath,
+                                                 {collect_all = true}, cwd,
+                                                 test_modules)
                 total_tests = total_tests + tests_count
             end
         end
     end
     return total_tests
-end
-
--- Report errors.
-local function report_errors(errors, reporter)
-    if #errors ~= 0 then
-        for _, error in ipairs(errors) do reporter:error(error) end
-        reporter:fatal("Collection failed.")
-    end
 end
 
 -- Check that any user provided test appears in the tests directory.
@@ -114,13 +136,16 @@ local function clean_tests(config, reporter)
         elseif path.isfile(test_path) then
             if has_test_name then
                 local test_name = string.match(test, "::(.*)")
-                if not tests_map[test_path] then
-                    tests_map[test_path] = {collect_all = false, tests = {}}
+                if not tests_map.files[test_path] then
+                    tests_map.files[test_path] = {
+                        collect_all = false,
+                        tests = {}
+                    }
                 end
 
                 -- Only merge in another test when not collecting all tests.
-                if not tests_map[test_path].collect_all then
-                    tests_map[test_path].tests[test_name] = true
+                if not tests_map.files[test_path].collect_all then
+                    tests_map.files[test_path].tests[test_name] = true
                 end
             else
                 tests_map.files[test_path] = {collect_all = true}
@@ -149,10 +174,6 @@ local function collect(config, reporter)
 
     reporter:start_collection(tests_dir)
 
-    -- 3. collect directories
-    -- 4. collect whole files
-    -- 5. collect individual tests (don't reload module repeatedly)
-
     -- This table will hold all test modules that will be used
     -- during the execution phase.
     local test_modules = {meta = {total_tests = 0}}
@@ -163,6 +184,17 @@ local function collect(config, reporter)
                                         test_modules)
     else
         local tests_map = clean_tests(config, reporter)
+        for directory, _ in pairs(tests_map.directories) do
+            local tests_count = collect_directory(config, reporter, directory,
+                                                  cwd, test_modules)
+            total_tests = total_tests + tests_count
+        end
+        for test_path, test_meta in pairs(tests_map.files) do
+            test_path = path.join(cwd, test_path)
+            local tests_count = collect_file(reporter, test_path, test_meta,
+                                             cwd, test_modules)
+            total_tests = total_tests + tests_count
+        end
     end
 
     test_modules.meta = {total_tests = total_tests}

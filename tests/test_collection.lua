@@ -24,11 +24,11 @@ function tests.test_collects_test_modules()
         meta = {total_tests = 2},
         ["tests/demo/something_test.lua"] = {
             module = {test_foo = something_test.test_foo},
-            tests_count = 1
+            tests = {"test_foo"}
         },
         ["tests/demo/other_test.lua"] = {
             module = {test_foo = other_test.test_foo},
-            tests_count = 1
+            tests = {"test_foo"}
         }
     }, test_modules)
 end
@@ -42,6 +42,7 @@ function tests.test_non_module()
     spy.on(reporter, "warn")
 
     local test_count = collection.process_module(relpath, test_module,
+                                                 {collect_all = true},
                                                  test_modules, reporter)
 
     assert.spy(reporter.warn).was_called_with(reporter,
@@ -60,6 +61,7 @@ function tests.test_empty_module()
     spy.on(reporter, "warn")
 
     local test_count = collection.process_module(relpath, test_module,
+                                                 {collect_all = true},
                                                  test_modules, reporter)
 
     assert.spy(reporter.warn).was_called_with(reporter,
