@@ -19,7 +19,9 @@ end
 -- Execution processes a passing test module.
 function tests.test_pass()
     local passing = require "tests.demo.passing"
-    local test_modules = {["tests/demo/passing.lua"] = {module = passing}}
+    local test_modules = {
+        ["tests/demo/passing.lua"] = {module = passing, tests = {"test_passes"}}
+    }
     local reporter = stubbed_reporter()
 
     executor.execute(test_modules, reporter)
@@ -32,7 +34,9 @@ end
 -- Execution processes a failing test module.
 function tests.test_fail()
     local failing = require "tests.demo.failing"
-    local test_modules = {["tests/demo/failing.lua"] = {module = failing}}
+    local test_modules = {
+        ["tests/demo/failing.lua"] = {module = failing, tests = {"test_fails"}}
+    }
     local reporter = stubbed_reporter()
 
     executor.execute(test_modules, reporter)

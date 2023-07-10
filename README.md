@@ -33,6 +33,36 @@ tests/test_reporter.lua ................
 1. Discover, collect, and execute test code.
 2. Measure code coverage via luacov.
 
+### Test filtering
+
+You can execute a subset of your test suite
+by using positional arguments to luatest.
+These arguments can be in one of three forms,
+and these forms can be used in combination.
+The three forms are:
+
+1. A directory within the test suite will collect tests within that directory.
+2. A test file within the test suite will collect all tests within that file.
+3. A test file with a test name, separated by `::`, will collect an individual test.
+
+Here's an example invocation (using verbose output)
+from luatest's own test suite
+to illustrate.
+
+```bash
+$ luatest --verbose \
+    tests/test_executor.lua \
+    tests/test_collection.lua::test_collects_test_modules
+Searching /Users/matt/projects/luatest/tests
+Collected 3 tests
+
+tests/test_collection.lua::test_collects_test_modules PASSED
+tests/test_executor.lua::test_fail PASSED
+tests/test_executor.lua::test_pass PASSED
+
+3 passed in 0.0s
+```
+
 ### stdout/stderr capturing
 
 By default, luatest will attempt to capture any usage of stdout and stderr
