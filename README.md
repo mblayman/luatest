@@ -103,3 +103,30 @@ tests_dir = "tests"
 # This default pattern will match a file that looks like "test_<something>.lua".
 test_file_pattern = "test_.+%.lua"
 ```
+
+## Test files
+
+By default, luatest will search for files in a top-level `tests` directory.
+A test file should be standard Lua module.
+luatest will execute every function that is added
+to the test file's module table.
+
+This is an example file to show what your test module may look like.
+Assume that this file is `tests/test_example.lua`
+
+```lua
+local assert = require "luassert"
+
+local my_module = require "my_module"
+
+local tests = {}
+
+-- my_func answers the meaning of life.
+function tests.test_my_func()
+    local meaning_of_life = my_module.my_func()
+
+    assert.is_equal(42, meaning_of_life)
+end
+
+return tests
+```
