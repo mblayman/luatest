@@ -210,4 +210,11 @@ local function collect(config, reporter)
     return test_modules
 end
 
-return {collect = collect, process_module = process_module}
+return {
+    collect = collect,
+    check_tests_in_tests_dir = check_tests_in_tests_dir,
+    check_files_are_tests = check_files_are_tests,
+    clean_test = clean_tests,
+    process_module = process_module,
+    report_errors = report_errors
+}

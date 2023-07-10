@@ -1,4 +1,5 @@
 local assert = require "luassert"
+local stub = require "luassert.stub"
 
 local Reporter = require "luatest.reporter"
 
@@ -48,6 +49,32 @@ function tests.test_warn_yellow()
     reporter:warn("a warning")
 
     assert.is_equal("\x1B[0m\x1B[33ma warning\x1B[0m\n", get_content(file))
+end
+
+-- An error is printed as red text.
+function tests.test_error_red()
+    local config = {}
+    local file = io.tmpfile()
+    local reporter = Reporter(config, file)
+
+    reporter:error("an error")
+
+    assert.is_equal("\x1B[0m\x1B[31man error\x1B[0m\n", get_content(file))
+end
+
+-- A fatal error is printed as red text and exits.
+function tests.test_fatal()
+    local config = {}
+    local file = io.tmpfile()
+    local reporter = Reporter(config, file)
+    stub(os, "exit")
+
+    reporter:fatal("a fatal error")
+
+    assert.is_equal("\x1B[0m\x1B[31ma fatal error\x1B[0m\n", get_content(file))
+    assert.stub(os.exit).was_called_with(1)
+
+    os.exit:revert()
 end
 
 -- Start collection reports the tests directory.
