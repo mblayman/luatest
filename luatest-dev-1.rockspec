@@ -2,7 +2,7 @@ rockspec_format = "3.0"
 package = "luatest"
 version = "dev-1"
 
-source = {url = "git+ssh://git@github.com/mblayman/luatest.git"}
+source = {url = "git+https://github.com/mblayman/luatest"}
 
 description = {
     summary = "A Lua test runner",
