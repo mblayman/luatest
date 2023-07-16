@@ -3,6 +3,7 @@
 ## v0.2 - To Be Released
 
 * Validate the tests directory before trying collection.
+* Prefer source files over a local installation in a LuaRocks tree.
 
 ## v0.1 - 2023-07-14
 
