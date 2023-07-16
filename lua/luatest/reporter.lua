@@ -72,8 +72,8 @@ function Reporter._read_stderr(self) return self._stderr_stringio:value() end
 -- with the other diagnostic information when failures occur.
 function Reporter.capture_standard_files(self)
     if self:_should_capture() then
-        io.stdout = self._stdout_stringio
-        io.stderr = self._stderr_stringio
+        io.stdout = self._stdout_stringio -- luacheck: ignore 122
+        io.stderr = self._stderr_stringio -- luacheck: ignore 122
 
         -- print seems to operate separately from io.stdout|stderr.
         -- Replace the global print function with a function that writes
