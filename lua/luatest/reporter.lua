@@ -119,6 +119,16 @@ function Reporter.fatal(self, message)
     os.exit(1)
 end
 
+-- Show a fatal error message and exit *early*.
+-- This exists to support error messaging before the reporter is started.
+-- It is *not* an instance method.
+function Reporter.fatal_early(message)
+    -- luacov: disable
+    print(ansicolors("%{red}" .. message))
+    os.exit(1)
+    -- luacov: enable
+end
+
 --
 -- Collection hooks
 --
