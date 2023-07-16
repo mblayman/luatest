@@ -216,4 +216,17 @@ function tests.test_invalid_user_file()
     assert.spy(reporter.error).was_called_with(reporter, expected)
 end
 
+-- An invalid tests directory is an error.
+function tests.test_invalid_tests_dir()
+    local tests_dir = "/not/real"
+    local reporter = {}
+    spy.on(reporter, "error")
+    spy.on(reporter, "fatal")
+
+    collection.validate_tests_dir(tests_dir, reporter)
+
+    local expected = "/not/real is not a valid directory."
+    assert.spy(reporter.error).was_called_with(reporter, expected)
+end
+
 return tests

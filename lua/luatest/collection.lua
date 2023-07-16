@@ -11,6 +11,13 @@ local function report_errors(errors, reporter)
     end
 end
 
+-- Validate the tests directory.
+local function validate_tests_dir(tests_dir, reporter)
+    if not path.isdir(tests_dir) then
+        report_errors({tests_dir .. " is not a valid directory."}, reporter)
+    end
+end
+
 -- Process module and store it with the collected modules.
 local function process_module(relpath, test_module, test_meta, test_modules,
                               reporter)
@@ -171,6 +178,7 @@ end
 local function collect(config, reporter)
     local cwd = path.currentdir()
     local tests_dir = path.join(cwd, config.tests_dir)
+    validate_tests_dir(tests_dir, reporter)
 
     reporter:start_collection(tests_dir)
 
@@ -216,5 +224,6 @@ return {
     check_files_are_tests = check_files_are_tests,
     clean_test = clean_tests,
     process_module = process_module,
-    report_errors = report_errors
+    report_errors = report_errors,
+    validate_tests_dir = validate_tests_dir
 }
