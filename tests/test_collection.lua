@@ -81,8 +81,10 @@ function tests.test_module_does_not_have_test()
         tests = {["test_does_not_exist"] = true}
     }, test_modules, reporter)
 
-    assert.spy(reporter.error).was_called_with(reporter,
-                                               "tests/demo/something_test.lua has no test function named test_does_not_exist")
+    local expected =
+        "tests/demo/something_test.lua has no test function named test_does_not_exist"
+    assert.spy(reporter.error).was_called_with(reporter, expected)
+
 end
 
 -- A module that doesn't look like a table of functions triggers a warning.
@@ -129,7 +131,7 @@ function tests.test_reports_errors()
     spy.on(reporter, "error")
     spy.on(reporter, "fatal")
 
-    local test_count = collection.report_errors(errors, reporter)
+    collection.report_errors(errors, reporter)
 
     assert.spy(reporter.error).was_called_with(reporter,
                                                "Houston, we have a problem.")

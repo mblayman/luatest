@@ -74,7 +74,7 @@ function tests.test_fatal()
     assert.is_equal("\x1B[0m\x1B[31ma fatal error\x1B[0m\n", get_content(file))
     assert.stub(os.exit).was_called_with(1)
 
-    os.exit:revert()
+    os.exit:revert() -- luacheck: ignore 143
 end
 
 -- Start collection reports the tests directory.
