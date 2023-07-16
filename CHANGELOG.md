@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.2 - To Be Released
+## v0.2 - 2023-07-16
 
 * Validate the tests directory before trying collection.
 * Validate the coverage directory before initializing coverage.
