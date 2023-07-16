@@ -32,6 +32,31 @@ local function build_parser()
     return parser
 end
 
+-- Update the package path.
+--
+-- LuaRocks binary entry points will modify the package.path
+-- to prepend the local tree. This is a problem if the project is installed
+-- in the local tree (which is likely scenario if someone used
+-- `luarocks make` to install a project's dependencies).
+-- Since luatest's goal is to test source file changes,
+-- prepend the most likely locations of source files so that any loaded module
+-- will search locally before checking the tree.
+--
+-- As an implementation detail, the package module is done
+-- with dependency injection to make this easier to test without messing
+-- with global state.
+local function update_package_path(config, package_module)
+    -- Add "lua" and "src" because those are common names.
+    local lua_path = "lua/?.lua;lua/?/init.lua;"
+    local src_path = "src/?.lua;src/?/init.lua;"
+    package_module.path = lua_path .. src_path .. package_module.path
+
+    if config.cov and config.cov ~= "lua" and config.cov ~= "src" then
+        local cov_path = config.cov .. "/?.lua;" .. config.cov .. "/?/init.lua;"
+        package_module.path = cov_path .. package_module.path
+    end
+end
+
 -- The initial entry point of the tool
 local function main(args)
     local parser = build_parser()
@@ -47,6 +72,8 @@ local function main(args)
         print("Configuration\n" .. inspect(config))
         -- luacov: enable
     end
+
+    update_package_path(config, package)
 
     if config.cov then coverage.initialize_coverage(config) end
 
@@ -65,4 +92,4 @@ local function main(args)
     return status
 end
 
-return {main = main}
+return {main = main, update_package_path = update_package_path}
