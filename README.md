@@ -28,6 +28,12 @@ tests/test_reporter.lua ................
 24 passed in 0.0s
 ```
 
+## Install
+
+```bash
+luarocks install luatest
+```
+
 ## Features
 
 1. Discover, collect, and execute test code.
