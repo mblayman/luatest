@@ -247,7 +247,10 @@ function tests.test_summarize_failure()
     local config = {}
     local file = io.tmpfile()
     local reporter = Reporter(config, file)
-    reporter._failures = {["tests/test_something.lua"] = {test_foo = "details"}}
+    reporter._failures = {["tests/test_something.lua"] = {
+        test_foo = "details",
+        test_bar = "more details"
+    }}
     reporter._captured_stdout = {
         ["tests/test_something.lua"] = {test_foo = "stdout content"}
     }
@@ -259,14 +262,17 @@ function tests.test_summarize_failure()
 
     local final_status = reporter:summarize()
 
+    local test_bar_file =
+        "\x1B[0m\x1B[1m\x1B[31mtests/test_something.lua::test_bar\x1B[0m\n\x1B[0m\n"
     local test_file =
         "\x1B[0m\x1B[1m\x1B[31mtests/test_something.lua::test_foo\x1B[0m\n\x1B[0m\n"
     local stdout = "> stdout:\nstdout content\n\n"
     local stderr = "> stderr:\nstderr content\n\n"
+    local bar_failure_details = "more details\n\n"
     local failure_details = "details\n\n"
     local summary =
-        "\x1B[0m\x1B[1m\x1B[31m1 failed\x1B[0m, \x1B[32m0 passed \x1B[31min 0.0s\x1B[0m\n"
-    assert.is_equal(test_file .. stdout .. stderr .. failure_details .. summary,
+        "\x1B[0m\x1B[1m\x1B[31m2 failed\x1B[0m, \x1B[32m0 passed \x1B[31min 0.0s\x1B[0m\n"
+    assert.is_equal(test_bar_file .. bar_failure_details .. test_file .. stdout .. stderr .. failure_details .. summary,
                     get_content(file))
     assert.is_equal(1, final_status)
 end

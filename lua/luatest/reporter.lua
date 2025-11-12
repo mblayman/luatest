@@ -263,8 +263,14 @@ function Reporter.summarize(self)
         -- luacov: enable
     end
 
-    local failures_count = tablex.size(self._failures)
-    if failures_count > 0 then self:_show_failure_details() end
+    local has_failures = tablex.size(self._failures) > 0
+    local failures_count = 0
+    if has_failures then
+        for _, failing_file in pairs(self._failures) do
+            failures_count = failures_count + tablex.size(failing_file)
+        end
+        self:_show_failure_details()
+    end
 
     -- Summary line
     local delta_seconds = os.difftime(self._finish, self._start)
